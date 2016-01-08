@@ -3,16 +3,24 @@ package main
 import (
 	"code.google.com/p/go.net/websocket"
 	"fmt"
-	"log"
+	"github.com/drone/routes"
+	//	"log"
 	"net/http"
 )
 
 func main() {
 	fmt.Println("Start app")
-	http.Handle("/", websocket.Handler(Echo))
-	if err := http.ListenAndServe(":4001", nil); err != nil {
-		log.Fatal("ListenAndServe:", err)
-	}
+	//	//websocket
+	//	http.Handle("/", websocket.Handler(Echo))
+	//	if err := http.ListenAndServe(":4001", nil); err != nil {
+	//		log.Fatal("ListenAndServe:", err)
+	//	}
+
+	//restful
+	mux := routes.New()
+	mux.Get("/user/:uid", GetUser)
+	http.Handle("/", mux)
+	http.ListenAndServe(":4002", nil)
 }
 
 func Echo(ws *websocket.Conn) {
@@ -31,4 +39,10 @@ func Echo(ws *websocket.Conn) {
 			break
 		}
 	}
+}
+
+func GetUser(w http.ResponseWriter, r *http.Request) {
+	params := r.URL.Query()
+	uid := params.Get(":uid")
+	fmt.Println("the request uid is: ", uid)
 }
